@@ -189,19 +189,19 @@ if Meteor.is_client # TODO: Why is this loaded on sever when package says 'clien
       return alert 'unknown template!'
     html
 
-  # # JQuery shortcuts for Houce.render
-  # jQuery.fn.render = (args...)->
-  #   @html (el = Houce.render_spark.apply null, args)
-  #   el
-  # jQuery.fn.render_bottom = (args...)->
-  #   @append (el = Houce.render_spark.apply null, args)
-  #   el
-  # jQuery.fn.render_top = (args...)->
-  #   @prepend (el = Houce.render_spark.apply null, args)
-  #   el
-  # jQuery.fn.render_outer = (args...)->
-  #   @first().before (el = Houce.render_spark.apply null, args)
-  #   @remove()
-  #   el
+  # JQuery shortcuts for Houce.render
+  jQuery.fn.render = (args...)->
+    @html (el = Houce.render_spark.apply null, args)
+    el
+  jQuery.fn.render_bottom = (args...)->
+    @append (el = Houce.render_spark.apply null, args)
+    el
+  jQuery.fn.render_top = (args...)->
+    @prepend (el = Houce.render_spark.apply null, args)
+    el
+  jQuery.fn.render_outer = (args...)->
+    @first().before (el = Houce.render_spark.apply null, args)
+    @remove()
+    el
 
 
