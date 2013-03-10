@@ -243,9 +243,7 @@ global.Pager = do ->
     error = null
 
     if (templ = Template[me.page_name])?
-      # if templ.open?
-      #   #Meteor.update_context ->
-      #   templ.open me.page_params
+      log 'templ', templ
       if templ.html?
         Pager.tmpl_container.html Houce.render_spark me.page_name
       else

@@ -298,6 +298,7 @@
         me.before_open_page();
         error = null;
         if ((templ = Template[me.page_name]) != null) {
+          log('templ', templ);
           if (templ.html != null) {
             Pager.tmpl_container.html(Houce.render_spark(me.page_name));
           } else {

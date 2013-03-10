@@ -48,7 +48,7 @@
       error_logging: false
     };
     args = merge(defaults, args);
-    Pager.main_page = args.main_page;
+    Pager.main_page = config.main_page || args.main_page;
     Pager.before_open_page = args.before_open_page;
     Pager.after_open_page = args.after_open_page;
     /* Error logging to server
@@ -88,8 +88,8 @@
     */
 
     if (!window.ERROR) {
-      $('body').html(Houce.parse_template(args.layout));
-      Pager.tmpl_container = $(args.tmpl_container || 'body');
+      $('body').html(Houce.parse_template(config.layout || args.layout));
+      Pager.tmpl_container = $(config.tmpl_container || args.tmpl_container || 'body');
       args.init_app();
       return Pager.start_url_checking();
     }

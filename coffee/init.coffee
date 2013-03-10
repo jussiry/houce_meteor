@@ -46,7 +46,7 @@ Houce.init_houce = (args)->
 
   args = merge defaults, args
 
-  Pager.main_page        = args.main_page
+  Pager.main_page        = config.main_page or args.main_page # TODO deprecate args.main_page
   Pager.before_open_page = args.before_open_page
   Pager.after_open_page  = args.after_open_page
   # if Meteor.is_client
@@ -93,9 +93,9 @@ Houce.init_houce = (args)->
   ### Init application ###
 
   unless window.ERROR
-    # layout
-    $('body').html Houce.parse_template args.layout
-    Pager.tmpl_container = $(args.tmpl_container or 'body')
+    # layout  TODO: deprecate args.layout and args.tmpl_container
+    $('body').html Houce.parse_template (config.layout or args.layout)
+    Pager.tmpl_container = $(config.tmpl_container or args.tmpl_container or 'body')
     # execute app specific init
     args.init_app()
     # start Pager
