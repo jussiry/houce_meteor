@@ -202,6 +202,9 @@
       } else {
         return alert('unknown template!');
       }
+      if (tmpl.name === 'dev_editor') {
+        log('HTML', global.html = html);
+      }
       return html;
     };
     jQuery.fn.render = function() {

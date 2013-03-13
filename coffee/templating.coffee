@@ -187,6 +187,7 @@ if Meteor.is_client # TODO: Why is this loaded on sever when package says 'clien
       html
     else
       return alert 'unknown template!'
+    log 'HTML', global.html = html if tmpl.name is 'dev_editor'
     html
 
   # JQuery shortcuts for Houce.render

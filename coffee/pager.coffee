@@ -243,18 +243,18 @@ global.Pager = do ->
     error = null
 
     if (templ = Template[me.page_name])?
-      log 'templ', templ
+      log 'tmpl', templ
       if templ.html?
         Pager.tmpl_container.html Houce.render_spark me.page_name
       else
-        error = "<strong>'#{me.page_name}' has not defined @open, @params_changed or @html function and thus can't be executed.</strong>"
+        error = "<strong>'#{me.page_name}' has not defined @html function and thus can't be rendered.</strong>"
       # alway fire also params_changed event with open_page (assuming there are some params)
       me.params_changed_event()
     else
-      log "WARNING: #{me.page_name}.templ not found!" if Houce.log_events
-      error = "Template <strong>#{me.page_name}.templ</strong> not found!"
+      log "WARNING: #{me.page_name}.tmpl not found!" if Houce.log_events
+      error = "Template <strong>#{me.page_name}.tmpl</strong> not found!"
 
-    $('body').html error if error?
+    $(config.tmpl_container or 'body').html error if error?
 
     me.after_open_page()
 

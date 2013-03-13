@@ -298,21 +298,21 @@
         me.before_open_page();
         error = null;
         if ((templ = Template[me.page_name]) != null) {
-          log('templ', templ);
+          log('tmpl', templ);
           if (templ.html != null) {
             Pager.tmpl_container.html(Houce.render_spark(me.page_name));
           } else {
-            error = "<strong>'" + me.page_name + "' has not defined @open, @params_changed or @html function and thus can't be executed.</strong>";
+            error = "<strong>'" + me.page_name + "' has not defined @html function and thus can't be rendered.</strong>";
           }
           me.params_changed_event();
         } else {
           if (Houce.log_events) {
-            log("WARNING: " + me.page_name + ".templ not found!");
+            log("WARNING: " + me.page_name + ".tmpl not found!");
           }
-          error = "Template <strong>" + me.page_name + ".templ</strong> not found!";
+          error = "Template <strong>" + me.page_name + ".tmpl</strong> not found!";
         }
         if (error != null) {
-          $('body').html(error);
+          $(config.tmpl_container || 'body').html(error);
         }
         return me.after_open_page();
       }

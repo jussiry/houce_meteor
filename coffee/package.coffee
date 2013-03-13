@@ -147,13 +147,13 @@ ccss = do ->
           delete obj[orig_key]
     obj
 
-Package.register_extension "templ", (bundle, source_path, serve_path, where)->
+Package.register_extension "tmpl", (bundle, source_path, serve_path, where)->
   console.log "processing TMPL #{source_path[18..-1]}" # .remove '/Users/jussir/code'
 
   error.bundle = bundle
 
   #current_dir = process.env.PWD
-  templ_name = source_path.split('/').last().replace '.templ', ''
+  tmpl_name = source_path.split('/').last().replace /\.tmpl$/, '' #/\.\w+$/, ''
   file_str = fs.readFileSync(source_path).toString().trim() # trim file_str to make style_regexp bit simpler
 
   # add $n (where n = 1..n) to end of key when many keys have same name
@@ -161,7 +161,7 @@ Package.register_extension "templ", (bundle, source_path, serve_path, where)->
   found_els = {}
 
   # PREPROCESS @html and @style functions
-  # remove comments
+
   file_str = (for row in file_str.split '\n'
     if row.has(/^\s+\#/) then null else row
                          #else row.replace /#[^\'\"]*$/, ''
@@ -199,7 +199,7 @@ Package.register_extension "templ", (bundle, source_path, serve_path, where)->
     new_rows.push row
   file_str = new_rows.join '\n'
 
-  # if templ_name is 'left_nav'
+  # if tmpl_name is 'left_nav'
   #  log '---------------------\n\nafter processing', file_str
 
   # STYLE
@@ -220,35 +220,35 @@ Package.register_extension "templ", (bundle, source_path, serve_path, where)->
       }`
       style = result_of style
     catch err
-      error "when parsing @style of #{templ_name}.templ\n#{err}"
+      error "when parsing @style of #{tmpl_name}.tmpl\n#{err}"
       return
     ccss.shortcuts style
     try css = ccss.compile style
     catch err
-      error "\nERROR in compiling @style in template: #{templ_name}.#{file_extension}: #{err}"
+      error "\nERROR in compiling @style in template: #{tmpl_name}.#{file_extension}: #{err}"
       return
 
     if css.length
       bundle.add_resource
         type: "css"
-        path: serve_path.replace '.templ', '.css'
+        path: serve_path.replace '.tmpl', '.css'
         data: css
         where: where
 
     file_str = file_str.remove style_regexp.addFlag 'g'
 
 
-  try templ_js = CS.compile file_str, bare:true
+  try tmpl_js = CS.compile file_str, bare:true
   catch err
     error "in compiling '#{source_path}'\n#{err}"
     return
-  templ_js = "if( Meteor.is_client ){ Template.#{templ_name} = new function(){\n#{templ_js} } }" #\nreturn this;\n
+  tmpl_js = "if( Meteor.is_client ){ Template.#{tmpl_name} = new function(){\n#{tmpl_js} } }" #\nreturn this;\n
 
 
   bundle.add_resource
     type: "js"
-    path: serve_path.replace '.templ', '.js'
-    data: templ_js
+    path: serve_path.replace '.tmpl', '.js'
+    data: tmpl_js
     where: where
 
 Package.register_extension "plaa", (bundle, source_path, serve_path, where)->
