@@ -177,6 +177,7 @@
       if (tmpl == null) {
         throw "Template not found: " + tmpl_or_name;
       }
+      log('rendering: ' + tmpl.name);
       if (tmpl.html != null) {
         html = Spark.labelBranch(Meteor.uuid(), function() {
           return html = Spark.createLandmark(tmpl.events || {}, function(landmark) {

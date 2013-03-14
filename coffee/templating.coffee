@@ -167,7 +167,7 @@ if Meteor.is_client # TODO: Why is this loaded on sever when package says 'clien
                                               else Template[tmpl_or_name]
     unless tmpl?
       throw "Template not found: #{tmpl_or_name}"
-    #log 'rendering: '+tmpl.name
+    log 'rendering: '+tmpl.name
 
     if tmpl.html?
       # houce template

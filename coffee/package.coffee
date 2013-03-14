@@ -15,14 +15,15 @@ for file_name in ['sugar-1.3.8.min', 'globals', 'prototypes']
     console.log "#{packages_path}/houce/#{file_name}, #{err}"
 
 Package.describe
-  summary: "houCe template system in Meteor"
+  summary: "houCe template and page handling in Meteor"
 
 
 Package.on_use (api)->
   # load ccss_helpers
   ccss_path = process.env.PWD+'/styles/ccss_helpers.coffee'
-  ccss_str = fs.readFileSync(ccss_path).toString()
-  try CS.eval ccss_str
+  try
+    ccss_str = fs.readFileSync(ccss_path)?.toString()
+    CS.eval ccss_str
   catch err
     error "compiling ccss_helpers: ", err
 
@@ -148,7 +149,7 @@ ccss = do ->
     obj
 
 Package.register_extension "tmpl", (bundle, source_path, serve_path, where)->
-  console.log "processing TMPL #{source_path[18..-1]}" # .remove '/Users/jussir/code'
+  console.log "processing TMPL #{source_path.remove(process.env.PWD)}" # .remove '/Users/jussir/code'
 
   error.bundle = bundle
 
@@ -278,4 +279,19 @@ Package.register_extension "ccss", (bundle, source_path, serve_path, where)->
     type: "css"
     path: serve_path.replace '.ccss', '.css'
     data: css
+    where: where
+
+Package.register_extension "coffee", (bundle, source_path, serve_path, where)->
+  console.log "processing COFF #{source_path.remove(process.env.PWD)}"
+  serve_path = serve_path + '.js'
+  contents = fs.readFileSync source_path
+  try contents = CS.compile contents.toString('utf8'), (filename: source_path)
+  catch e
+    return bundle.error e.message
+
+  contents = new Buffer contents
+  bundle.add_resource
+    type: "js"
+    path: serve_path
+    data: contents
     where: where

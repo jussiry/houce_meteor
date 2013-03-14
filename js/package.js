@@ -24,14 +24,14 @@
   }
 
   Package.describe({
-    summary: "houCe template system in Meteor"
+    summary: "houCe template and page handling in Meteor"
   });
 
   Package.on_use(function(api) {
-    var ccss_path, ccss_str, file, file_arr, files, place, _j, _len1;
+    var ccss_path, ccss_str, file, file_arr, files, place, _j, _len1, _ref1;
     ccss_path = process.env.PWD + '/styles/ccss_helpers.coffee';
-    ccss_str = fs.readFileSync(ccss_path).toString();
     try {
+      ccss_str = (_ref1 = fs.readFileSync(ccss_path)) != null ? _ref1.toString() : void 0;
       CS["eval"](ccss_str);
     } catch (err) {
       error("compiling ccss_helpers: ", err);
@@ -175,7 +175,7 @@
 
   Package.register_extension("tmpl", function(bundle, source_path, serve_path, where) {
     var css, cur_type, file_str, found_els, func_row, json_row, new_rows, row, rows, style, style_js, style_regexp, style_str, tmpl_js, tmpl_name, _ref1;
-    console.log("processing TMPL " + source_path.slice(18));
+    console.log("processing TMPL " + (source_path.remove(process.env.PWD)));
     error.bundle = bundle;
     tmpl_name = source_path.split('/').last().replace(/\.tmpl$/, '');
     file_str = fs.readFileSync(source_path).toString().trim();
@@ -309,6 +309,27 @@
       type: "css",
       path: serve_path.replace('.ccss', '.css'),
       data: css,
+      where: where
+    });
+  });
+
+  Package.register_extension("coffee", function(bundle, source_path, serve_path, where) {
+    var contents;
+    console.log("processing COFF " + (source_path.remove(process.env.PWD)));
+    serve_path = serve_path + '.js';
+    contents = fs.readFileSync(source_path);
+    try {
+      contents = CS.compile(contents.toString('utf8'), {
+        filename: source_path
+      });
+    } catch (e) {
+      return bundle.error(e.message);
+    }
+    contents = new Buffer(contents);
+    return bundle.add_resource({
+      type: "js",
+      path: serve_path,
+      data: contents,
       where: where
     });
   });
