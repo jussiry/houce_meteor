@@ -12,19 +12,19 @@
       back_path: null,
       params: {
         all: ext(),
-        contexes: ext(),
+        dependencies: ext(),
         get: function(key) {
-          var ctx, ctx_cont, k, v, _base, _ref, _ref1;
-          if ((ctx = Meteor.deps.Context.current) != null) {
-            ctx_cont = (_ref = (_base = me.params.contexes)[key]) != null ? _ref : _base[key] = ext();
-            ctx_cont[ctx.id] = ctx;
+          var k, v, _ref;
+          if (me.params.dependencies[key] == null) {
+            me.params.dependencies[key] = new Deps.Dependency;
           }
+          Deps.depend(me.params.dependencies[key]);
           if (me.params.all[key] != null) {
             return me.params.all[key];
           }
-          _ref1 = me.params.all;
-          for (k in _ref1) {
-            v = _ref1[k];
+          _ref = me.params.all;
+          for (k in _ref) {
+            v = _ref[k];
             if (k.parsesToNumber() && v === key) {
               return true;
             }
@@ -54,7 +54,7 @@
         },
         preset: function(key, val) {
           if (me.params.all[key] == null) {
-            return me.set(key, val);
+            return me.params.set(key, val);
           }
         },
         remove: function(key) {
@@ -67,7 +67,7 @@
               delete me.params.all[k];
             }
           }
-          me.check_if_params_changed();
+          me.params.check_if_params_changed();
           return me.params.invalidate(key);
         },
         toggle: function(key, new_val) {
@@ -80,12 +80,7 @@
         invalidate: function(param_key) {
           var _ref;
           log('params invalidate:', param_key);
-          if ((_ref = me.params.contexes[param_key]) != null) {
-            _ref.values(function(ctx) {
-              return ctx.invalidate();
-            });
-          }
-          return delete me.params.contexes[param_key];
+          return (_ref = me.params.dependencies[param_key]) != null ? _ref.changed() : void 0;
         }
       },
       path: function() {

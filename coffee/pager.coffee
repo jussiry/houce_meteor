@@ -31,17 +31,19 @@ global.Pager = do ->
   path_history: [] # array of all previous path strings
   back_path:    null # temp var for back button
 
-  # TODO: create invalidation contexes for each param
-  # Does this require Params.get to be used as callback?
-  # E.g. Pager.get 'plaa', (plaa_val)-> ...
+  # TODO: create dependencies for each param Does this require Params.get to
+  # be used as callback? E.g. Pager.get 'plaa', (plaa_val)-> ...
   params:
-    all:      ext() # 'key=value' path params
-    contexes: ext()
+    all:          ext() # 'key=value' path params
+    dependencies: ext()
     get: (key)->
       # add current context to be invalidated, if this parameter get changed
-      if (ctx = Meteor.deps.Context.current)?
-        ctx_cont = me.params.contexes[key] ?= ext()
-        ctx_cont[ctx.id] = ctx
+
+      # if (ctx = Meteor.deps.Context.current)?
+      #   ctx_cont = me.dependencies[key] ?= ext()
+      #   ctx_cont[ctx.id] = ctx
+      me.params.dependencies[key] = new Deps.Dependency unless me.params.dependencies[key]?
+      Deps.depend me.params.dependencies[key]
       # return parameter
       return me.params.all[key] if me.params.all[key]?
       for k,v of me.params.all
@@ -63,22 +65,23 @@ global.Pager = do ->
       me.check_if_params_changed()
       me.params.invalidate key
     preset: (key, val)->
-      me.set(key, val) unless me.params.all[key]?
+      me.params.set(key, val) unless me.params.all[key]?
     remove: (key)->
       delete me.params.all[key]
       for k,v of me.params.all
         delete me.params.all[k] if k.parsesToNumber() and v is key
-      me.check_if_params_changed()
+      me.params.check_if_params_changed()
       me.params.invalidate key
     toggle: (key, new_val)->
       if me.params.get key then me.params.remove key \
                            else me.params.set key, new_val
     invalidate: (param_key)->
       log 'params invalidate:', param_key
-      # invalidate contexes
-      me.params.contexes[param_key]?.values (ctx)->
-        ctx.invalidate()
-      delete me.params.contexes[param_key]
+      # invalidate dependencies
+      me.params.dependencies[param_key]?.changed()
+      # me.params.dependencies[param_key]?.values (ctx)->
+      #   ctx.invalidate()
+      # delete me.params.dependencies[param_key]
 
   path: ->
     if is_blank(last = me.path_history.last()) then me.main_page else last
