@@ -37,12 +37,8 @@ global.Pager = do ->
     all:          ext() # 'key=value' path params
     dependencies: ext()
     get: (key)->
-      # add current context to be invalidated, if this parameter get changed
-
-      # if (ctx = Meteor.deps.Context.current)?
-      #   ctx_cont = me.dependencies[key] ?= ext()
-      #   ctx_cont[ctx.id] = ctx
-      me.params.dependencies[key] = new Deps.Dependency unless me.params.dependencies[key]?
+      # create dependency to be invalidated, if this parameter get changed
+      me.params.dependencies[key] ?= new Deps.Dependency
       Deps.depend me.params.dependencies[key]
       # return parameter
       return me.params.all[key] if me.params.all[key]?
@@ -63,25 +59,18 @@ global.Pager = do ->
         # new param, set to next_ind
         me.params.all[cur_ind.toNumber()] = key
       me.check_if_params_changed()
-      me.params.invalidate key
+      me.params.dependencies[param_key]?.changed()
     preset: (key, val)->
       me.params.set(key, val) unless me.params.all[key]?
     remove: (key)->
       delete me.params.all[key]
       for k,v of me.params.all
         delete me.params.all[k] if k.parsesToNumber() and v is key
-      me.params.check_if_params_changed()
-      me.params.invalidate key
+      me.check_if_params_changed()
+      me.params.dependencies[param_key]?.changed()
     toggle: (key, new_val)->
       if me.params.get key then me.params.remove key \
                            else me.params.set key, new_val
-    invalidate: (param_key)->
-      log 'params invalidate:', param_key
-      # invalidate dependencies
-      me.params.dependencies[param_key]?.changed()
-      # me.params.dependencies[param_key]?.values (ctx)->
-      #   ctx.invalidate()
-      # delete me.params.dependencies[param_key]
 
   path: ->
     if is_blank(last = me.path_history.last()) then me.main_page else last
