@@ -12,7 +12,7 @@
 #       (by adding counter to path_history?)
 
 
-global.Pager = do ->
+global.pager = do ->
 
   hashbang = '#/'
   bang     = '/'
@@ -79,14 +79,14 @@ global.Pager = do ->
   start_url_checking: (path)->
     me.open_page path:path if path
     # init hash checker
-    window.onhashchange = Pager.check_url_hash
-    Pager.check_url_hash()
+    window.onhashchange = pager.check_url_hash
+    pager.check_url_hash()
 
     # unless Modernizr.hashchange # TODO android 2.1 claims to have but don't work: http://caniuse.com/hashchange ?
     #   #alert 'onhashchange '+location.hash
     #   else
     #   #alert 'check interval '+location.hash
-    #   setInterval Pager.check_url_hash, 100
+    #   setInterval pager.check_url_hash, 100
 
   get_page: -> Template[me.page_name] or me.main_page
 
@@ -136,7 +136,7 @@ global.Pager = do ->
     ).compact().length
     Template[me.page_name].events?.params?
     # compare to old params to see what's changed
-    [old_page, old_params] = me.page_and_params_from_path(Pager.path_history.at -2)
+    [old_page, old_params] = me.page_and_params_from_path(pager.path_history.at -2)
     changed_params = {}
     if old_page isnt me.page_name
       for k,v of me.params.all
@@ -206,7 +206,7 @@ global.Pager = do ->
   #   already_closed  # used to avoid page.close from looping forever
   open_page: (args)->
     if not args? # refresh page
-      args = path: Pager.path()
+      args = path: pager.path()
     else if typeof args is 'string'
       args = path: args
     if args.path?
@@ -237,7 +237,9 @@ global.Pager = do ->
     if (templ = Template[me.page_name])?
       log 'tmpl', templ
       if templ.html?
-        Pager.tmpl_container.html Houce.render_spark me.page_name
+        #pager.tmpl_container.html Houce.render_spark me.page_name
+        UI.insert (r = Houce.render_spark me.page_name), document.body #pager.tmpl_container[0]
+        console.log "full render result", r
       else
         error = "<strong>'#{me.page_name}' has not defined @html function and thus can't be rendered.</strong>"
       # alway fire also params_changed event with open_page (assuming there are some params)
@@ -253,8 +255,8 @@ global.Pager = do ->
 
 # TODO: change params back to root level properties
 # and remove these temporary hack
-Pager.get    = Pager.params.get
-Pager.set    = Pager.params.set
-Pager.preset = Pager.params.preset
-Pager.remove = Pager.params.remove
-Pager.toggle = Pager.params.toggle
+pager.get    = pager.params.get
+pager.set    = pager.params.set
+pager.preset = pager.params.preset
+pager.remove = pager.params.remove
+pager.toggle = pager.params.toggle

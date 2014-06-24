@@ -31,7 +31,7 @@ Houce.clear_config = ->
 #   Houce.clear_config()
 
 
-if Meteor.is_client
+if Meteor.isClient
 
       # log 'MC: ', mc
       # mc.render 'idea', models.idea.collection.find().fetch()[0]
@@ -108,7 +108,7 @@ if Meteor.is_client
   # Retuns title of the current, or given page
   Houce.page_title = (templ)->
     page = Template[templ] if typeof templ is 'string'
-    page ?= Pager.get_page()
+    page ?= pager.get_page()
     title = page.title or ''
     result_of title # title or title()
 
@@ -147,5 +147,5 @@ if Meteor.is_client
   #     err_logs:  Houce.err_log.msgs # JSON.stringify
   #     non_err_err:  JSON.stringify arguments
   #     timestamp:    Date.now()
-  #     path_history: JSON.stringify Pager.path_history
+  #     path_history: JSON.stringify pager.path_history
 

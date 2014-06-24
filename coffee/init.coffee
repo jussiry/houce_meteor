@@ -46,20 +46,9 @@ Houce.init_houce = (args)->
 
   args = merge defaults, args
 
-  Pager.main_page        = config.main_page or args.main_page # TODO deprecate args.main_page
-  Pager.before_open_page = args.before_open_page
-  Pager.after_open_page  = args.after_open_page
-  # if Meteor.is_client
-  #   Houce.init_data.app_defaults = args.data_structure
-  #   Houce.init_data.version      = args.data_version
-
-
-  ### Error logging to server ###
-  # requires (Redis) data storage; currently not implemented on server
-
-  # Houce.error.logging_on = args.error_logging
-  # window.onerror = Houce.error
-
+  pager.main_page        = config.main_page or args.main_page # TODO deprecate args.main_page
+  pager.before_open_page = args.before_open_page
+  pager.after_open_page  = args.after_open_page
 
   ### Config ###
 
@@ -74,8 +63,8 @@ Houce.init_houce = (args)->
   # Test local storage:
   try
     # In iphone/ipad private mode this will fail
-    localStorage  .storage_test = 'works'
-    sessionStorage.storage_test = 'works'
+    for store in [localStorage, sessionStorage]
+      store.storage_test = 'works'
   catch err then config.storage_on = false
 
   ### Init templates ###
@@ -95,8 +84,8 @@ Houce.init_houce = (args)->
   unless window.ERROR
     # layout  TODO: deprecate args.layout and args.tmpl_container
     $('body').html Houce.parse_template (config.layout or args.layout)
-    Pager.tmpl_container = $(config.tmpl_container or args.tmpl_container or 'body')
+    pager.tmpl_container = $(config.tmpl_container or args.tmpl_container or 'body')
     # execute app specific init
     args.init_app()
-    # start Pager
-    Pager.start_url_checking()
+    # start pager
+    pager.start_url_checking()
