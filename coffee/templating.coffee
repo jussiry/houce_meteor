@@ -2,7 +2,11 @@
 # Package.register_extension "XXX", ->
 #   log 'REGISTERING XXX!!!'
 
-if Meteor.is_client # TODO: Why is this loaded on sever when package says 'client'?
+if Meteor.isClient # TODO: Why is this loaded on sever when package says 'client'?
+
+  # create
+  #Houce.template
+
 
   # CURRENTLY NOT IN USE, temporalily 'el' is a global function
   Houce.template_helpers =
@@ -129,7 +133,7 @@ if Meteor.is_client # TODO: Why is this loaded on sever when package says 'clien
           if typeof el is 'object' then iterate el \ # , data
                                    else Houce.tmpl_stack.last().push el
         else
-          if key is 'render'
+          if key.search(/^render/) isnt -1
             stack_store = Houce.tmpl_stack
             data = Houce._cur_data
             #log 'ABOUT to render partial: ',el
@@ -167,7 +171,7 @@ if Meteor.is_client # TODO: Why is this loaded on sever when package says 'clien
                                               else Template[tmpl_or_name]
     unless tmpl?
       throw "Template not found: #{tmpl_or_name}"
-    log 'rendering: '+tmpl.name
+    #console.log 'rendering: '+tmpl.name
 
     if tmpl.html?
       # houce template
@@ -187,7 +191,7 @@ if Meteor.is_client # TODO: Why is this loaded on sever when package says 'clien
       html
     else
       return alert 'unknown template!'
-    log 'HTML', global.html = html if tmpl.name is 'dev_editor'
+    #log 'HTML', global.html = html if tmpl.name is 'dev_editor'
     html
 
   # JQuery shortcuts for Houce.render
