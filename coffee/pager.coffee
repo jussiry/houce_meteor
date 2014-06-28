@@ -237,7 +237,9 @@ global.pager = do ->
     if (templ = Template[me.page_name])?
       log 'tmpl', templ
       if templ.html?
-        pager.tmpl_container.html Houce.render_spark me.page_name
+        #pager.tmpl_container.html Houce.render_spark me.page_name
+        UI.insert (r = Houce.render_spark me.page_name), document.body #pager.tmpl_container[0]
+        console.log "full render result", r
       else
         error = "<strong>'#{me.page_name}' has not defined @html function and thus can't be rendered.</strong>"
       # alway fire also params_changed event with open_page (assuming there are some params)

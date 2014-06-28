@@ -51,17 +51,6 @@ Houce.init_houce = (args)->
   pager.main_page        = config.main_page or args.main_page # TODO deprecate args.main_page
   pager.before_open_page = args.before_open_page
   pager.after_open_page  = args.after_open_page
-  # if Meteor.isClient
-  #   Houce.init_data.app_defaults = args.data_structure
-  #   Houce.init_data.version      = args.data_version
-
-
-  ### Error logging to server ###
-  # requires (Redis) data storage; currently not implemented on server
-
-  # Houce.error.logging_on = args.error_logging
-  # window.onerror = Houce.error
-
 
   ### Config ###
 
@@ -76,8 +65,8 @@ Houce.init_houce = (args)->
   # Test local storage:
   try
     # In iphone/ipad private mode this will fail
-    localStorage  .storage_test = 'works'
-    sessionStorage.storage_test = 'works'
+    for store in [localStorage, sessionStorage]
+      store.storage_test = 'works'
   catch err then config.storage_on = false
 
   ### Init templates ###
