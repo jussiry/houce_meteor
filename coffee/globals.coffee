@@ -1,5 +1,4 @@
 
-
 if window?
   @global = window
 
@@ -128,7 +127,8 @@ globals =
           obj_name   = args[0]
           properties = args[1]
         when 3 # container, name, properties
-          container  = if typeof args[0] is 'string' then global[args[0]] else args[0]
+          container  = args[0]
+          container  = global[container] if typeof container is 'string'
           obj_name   = args[1]
           properties = args[2]
       if args.length > 1
