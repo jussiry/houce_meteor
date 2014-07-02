@@ -19,9 +19,11 @@ if Meteor.isClient # TODO: Why is this loaded on sever when package says 'client
   Houce.init_templates = ->
     for templ_name, container of Template
       # bind name of template under each template
-      container.name = templ_name
-      container.render = -> Houce.parse_template @html # HTML.Raw
-      container.blaze_component = UI.Component.extend(container)
+      do ->
+        c = container
+        container.name = templ_name
+        container.render = -> Houce.parse_template c.html # HTML.Raw
+        container.blaze_component = UI.Component.extend(container)
     return
 
   # Houce.create_html_node = (sKey)->
@@ -53,35 +55,6 @@ if Meteor.isClient # TODO: Why is this loaded on sever when package says 'client
   #     el.setAttribute 'class', classes.join ' '
   #   el
 
-  Houce.parse_html_tag = (str, hash_format)->
-    element  = 'div'
-    id       = null
-    classes  = []
-    # allow use of empty spaces by interpreting them as '_'
-    str = str.replace(/\s/g, '_')
-    # change i_plaa to '#plaa' and c_plaa to '.plaa'
-    str = str.replace(/(^|_)(c_|\.)/g, '.').replace(/(^|_)(i_|#)/g, '#') #(^| |,)
-    # Element
-    unless str[0].matches ['#', '.']
-      ends = if (e = str.search(/[.#]/) - 1) is -2 then -1 else e
-      element = str[0..ends]
-    # ID
-    if id_arr = str.match /#[^.#$]*/
-      id = id_arr[0][1..-1]
-      #log 'id -'+id+'-'
-    # Classes
-    ((str.match /\.[^.#$]*/g) or []).each (c)->
-      classes.push c[1..-1]
-
-    if hash_format
-      element: element
-      id:      id
-      classes: classes
-    else
-      id = "id='#{id}'" if id
-      classes = if classes.length then "class='#{classes.join ' '}'" else null
-      "<#{element} #{ifs id,id} #{ifs classes,classes}>"
-
   Houce.parse_template = (html_obj_or_func)->
     #log 'html_obj_or_func', html_obj_or_func
 
@@ -98,7 +71,8 @@ if Meteor.isClient # TODO: Why is this loaded on sever when package says 'client
     Houce.tmpl_iterator html_obj #, (data or {})
     #log 'FINAL HTML', Houce.tmpl_stack[0].join ''
     #debugger
-    Houce.tmpl_stack[0] #.join ''
+    #debugger
+    Houce.tmpl_stack[0].map (el)-> if typeof el is 'string' then HTML.Raw el else el #.join ''
 
   do ->
 
@@ -132,7 +106,7 @@ if Meteor.isClient # TODO: Why is this loaded on sever when package says 'client
             data = Houce._cur_data
             #log 'ABOUT to render partial: ',el
             [el, data] = el if el instanceof Array
-            Houce.tmpl_stack.last().push Houce.render_spark_partial el, data
+            Houce.tmpl_stack.last().push Template[el].blaze_component #Houce.render_blaze_partial el, data
             Houce.tmpl_stack = stack_store
             Houce._cur_data  = data # return correct data context, if changed by sub templates
             #log 'Partial rendered successfully: ',el
@@ -148,6 +122,35 @@ if Meteor.isClient # TODO: Why is this loaded on sever when package says 'client
       return
 
   Houce._cur_data = null
+
+  Houce.parse_html_tag = (str, hash_format)->
+    element  = 'div'
+    id       = null
+    classes  = []
+    # allow use of empty spaces by interpreting them as '_'
+    str = str.replace(/\s/g, '_')
+    # change i_plaa to '#plaa' and c_plaa to '.plaa'
+    str = str.replace(/(^|_)(c_|\.)/g, '.').replace(/(^|_)(i_|#)/g, '#') #(^| |,)
+    # Element
+    unless str[0].matches ['#', '.']
+      ends = if (e = str.search(/[.#]/) - 1) is -2 then -1 else e
+      element = str[0..ends]
+    # ID
+    if id_arr = str.match /#[^.#$]*/
+      id = id_arr[0][1..-1]
+      #log 'id -'+id+'-'
+    # Classes
+    ((str.match /\.[^.#$]*/g) or []).each (c)->
+      classes.push c[1..-1]
+
+    if hash_format
+      element: element
+      id:      id
+      classes: classes
+    else
+      id = "id='#{id}'" if id
+      classes = if classes.length then "class='#{classes.join ' '}'" else null
+      "<#{element} #{ifs id,id} #{ifs classes,classes}>"
 
   Houce.combine_tag_arr = (arr, parent)->
     # add attributes
@@ -166,7 +169,7 @@ if Meteor.isClient # TODO: Why is this loaded on sever when package says 'client
     # check first element and close by adding to end
     element = arr[0].match(/\<.+?(\s|>)/)[0][1..-2]
     arr.push "</#{element}>"
-    HTML.Raw arr.join ''
+    arr.join '' # HTML.Raw
 
   Houce.render_blaze = (tmpl_or_name)-> # , extra_data
     Houce.sub_tmpls_rendered = 0
