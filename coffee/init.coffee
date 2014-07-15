@@ -15,7 +15,7 @@ global.utils  = ext()
 # Namespace for configs
 global.config = ext()
 # Namespace for templates
-global.Template = Template ? ext()
+global.template = template ? ext()
 
 
 global.delay = (ms, func)->
@@ -85,8 +85,12 @@ Houce.init_houce = (args)->
 
   unless window.ERROR
     # layout  TODO: deprecate args.layout and args.tmpl_container
-    $('body').html Houce.parse_template (config.layout or args.layout)
-    pager.tmpl_container = $(config.tmpl_container or args.tmpl_container or 'body')
+
+    #$('body').html Houce.parse_template (config.layout or args.layout)
+    #pager.tmpl_container = $(config.tmpl_container or args.tmpl_container or 'body')
+    $('body').html ''
+    pager.tmpl_container = $('body')
+
     # execute app specific init
     args.init_app()
     # start pager

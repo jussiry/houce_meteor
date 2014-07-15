@@ -88,7 +88,7 @@ global.pager = do ->
     #   #alert 'check interval '+location.hash
     #   setInterval pager.check_url_hash, 100
 
-  get_page: -> Template[me.page_name] or me.main_page
+  get_page: -> template[me.page_name] or me.main_page
 
 
   path_from_page_and_params: (page=me.page_name, params = me.params.all)->
@@ -132,9 +132,9 @@ global.pager = do ->
   params_changed_event: ->
     return # TURNED OFF; TODO: remove open_page, this, and related functions
     return unless (active_tmpls = Houce.active_templates.keys()).map(
-      (tmpl_name)-> Template[tmpl_name].events?.params
+      (tmpl_name)-> template[tmpl_name].events?.params
     ).compact().length
-    Template[me.page_name].events?.params?
+    template[me.page_name].events?.params?
     # compare to old params to see what's changed
     [old_page, old_params] = me.page_and_params_from_path(pager.path_history.at -2)
     changed_params = {}
@@ -155,8 +155,8 @@ global.pager = do ->
           changed_params[old_val] = false if k.parsesToNumber() and typeof v isnt 'number'
 
     for tmpl_name in active_tmpls
-      Template[tmpl_name].events.params? changed_params
-      #Template[me.page_name].events.params changed_params
+      template[tmpl_name].events.params? changed_params
+      #template[me.page_name].events.params changed_params
 
 
   go_back: (default_prev, steps=1)->
@@ -215,7 +215,7 @@ global.pager = do ->
       [args.page, args.params] = me.page_and_params_from_path args.path
 
     # close old page if event exists:
-    if (old_page = Template[me.page_name])?.close? and not args.already_closed
+    if (old_page = template[me.page_name])?.close? and not args.already_closed
       return old_page.close (me.open_page.bind me, (merge args, already_closed:true)), \
                             args.page, args.params
 
@@ -234,11 +234,16 @@ global.pager = do ->
     me.before_open_page()
     error = null
 
-    if (templ = Template[me.page_name])?
-      log 'tmpl', templ
+    if (templ = template[me.page_name])?
       if templ.html?
-        #pager.tmpl_container.html Houce.render_blaze me.page_name
-        UI.insert (r = Houce.render_blaze me.page_name), document.body #pager.tmpl_container[0]
+        #pager.tmpl_container.html Houce.render_blaze me.page name
+
+        #Deps.autorun ->
+        #  console.log " rerunning UI.insert for body!" +Session.get 'daa'
+        if (c = document.body.children[0])?
+          document.body.removeChild c
+        global.insert_res = UI.insert (global.rendered_res = Houce.render_blaze me.page_name), document.body #pager.tmpl_container[0]
+
         #pager.tmpl_container.html Houce.render_blaze me.page_name
         #console.log "full render result", r
       else
@@ -246,7 +251,7 @@ global.pager = do ->
       # alway fire also params_changed event with open_page (assuming there are some params)
       me.params_changed_event()
     else
-      log "WARNING: #{me.page_name}.tmpl not found!" if Houce.log_events
+      console.log "WARNING: #{me.page_name}.tmpl not found!" if Houce.log_events
       error = "Template <strong>#{me.page_name}.tmpl</strong> not found!"
 
     $(config.tmpl_container or 'body').html error if error?
