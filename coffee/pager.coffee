@@ -26,13 +26,21 @@ global.pager = do ->
   me =
 
   #path_str:     null # full path string, e.g.  'list/deals/map/category=4'
-  page_name:    null # arr with page name and basic path params
   path_stack:   [] # array of previous path strings
   path_history: [] # array of all previous path strings
   back_path:    null # temp var for back button
 
-  # TODO: create dependencies for each param Does this require Params.get to
-  # be used as callback? E.g. pager.get 'plaa', (plaa_val)-> ...
+  page_name:
+    str: null
+    dependency: new Deps.Dependency
+    get: ->
+      Deps.depend @dependency
+      @str
+    set: (newStr)->
+      unless newStr is @str
+        @str = newStr
+        @dependency.changed()
+
   params:
     all:          ext() # 'key=value' path params
     dependencies: ext()
@@ -43,7 +51,7 @@ global.pager = do ->
       # return parameter
       return me.params.all[key] if me.params.all[key]?
       for k,v of me.params.all
-        return true if k.parsesToNumber() and v is key
+        return key if k.parsesToNumber() and v is key
       null
     set: (key, new_val)->
       if new_val?
@@ -76,8 +84,10 @@ global.pager = do ->
     if is_blank(last = me.path_history.last()) then me.main_page else last
 
 
-  start_url_checking: (path)->
-    me.open_page path:path if path
+  start_url_checking: (main_page)->
+    if main_page?
+    then me.main_page = main_page
+    else console.warn "Main page not given to pager.start_url_checking; don't know what to do on '/' url"
     # init hash checker
     window.onhashchange = pager.check_url_hash
     pager.check_url_hash()
@@ -88,10 +98,7 @@ global.pager = do ->
     #   #alert 'check interval '+location.hash
     #   setInterval pager.check_url_hash, 100
 
-  get_page: -> template[me.page_name] or me.main_page
-
-
-  path_from_page_and_params: (page=me.page_name, params = me.params.all)->
+  path_from_page_and_params: (page=me.page_name.str, params = me.params.all)->
     key_str = key_val_str = ''
 
     for k,v of params
@@ -134,11 +141,11 @@ global.pager = do ->
     return unless (active_tmpls = Houce.active_templates.keys()).map(
       (tmpl_name)-> template[tmpl_name].events?.params
     ).compact().length
-    template[me.page_name].events?.params?
+    template[me.page_name.str].events?.params?
     # compare to old params to see what's changed
     [old_page, old_params] = me.page_and_params_from_path(pager.path_history.at -2)
     changed_params = {}
-    if old_page isnt me.page_name
+    if old_page isnt me.page_name.str
       for k,v of me.params.all
         changed_params[k] = v
         changed_params[v] = true if k.parsesToNumber() and typeof v isnt 'number'
@@ -156,7 +163,7 @@ global.pager = do ->
 
     for tmpl_name in active_tmpls
       template[tmpl_name].events.params? changed_params
-      #template[me.page_name].events.params changed_params
+      #template[me.page_name.str].events.params changed_params
 
 
   go_back: (default_prev, steps=1)->
@@ -187,7 +194,7 @@ global.pager = do ->
       # back_button pressed, open previous page:
       me.open_page path: me.back_path
       me.back_path = null
-    else if page isnt me.page_name
+    else if page isnt me.page_name.str
       # page changed, open new page
       me.open_page page:page, params:params
     else if not equal params, me.params.all
@@ -215,48 +222,27 @@ global.pager = do ->
       [args.page, args.params] = me.page_and_params_from_path args.path
 
     # close old page if event exists:
-    if (old_page = template[me.page_name])?.close? and not args.already_closed
-      return old_page.close (me.open_page.bind me, (merge args, already_closed:true)), \
-                            args.page, args.params
+    # if (old_page = template[me.page_name.str])?.close? and not args.already_closed
+    #   return old_page.close (me.open_page.bind me, (merge args, already_closed:true)), \
+    #                         args.page, args.params
 
     # update path vars
-    me.page_name  = args.page
-    me.params.all = args.params
+    me.page_name.set args.page
+
+    # TODO: make reactive style instead of params_changed_event!
+    me.params.all = args.params # shouldn't this also make reactive change?
+    me.params_changed_event()
+
     # push to path_history
     me.path_history.push new_path=me.path_from_page_and_params()
     # remove from stack if already there and add again
     if (i = me.path_stack.indexOf new_path) isnt -1
       me.path_stack = me.path_stack.to i
     me.path_stack.push new_path
+
     # update url to new_path (already updated if coming from check_url_hash)
     location.hash = bang + new_path #unless Utils.device.browser is 'IE'
 
-    me.before_open_page()
-    error = null
-
-    if (templ = template[me.page_name])?
-      if templ.html?
-        #pager.tmpl_container.html Houce.render_blaze me.page name
-
-        #Deps.autorun ->
-        #  console.log " rerunning UI.insert for body!" +Session.get 'daa'
-        if (c = document.body.children[0])?
-          document.body.removeChild c
-        global.insert_res = UI.insert (global.rendered_res = Houce.render_blaze me.page_name), document.body #pager.tmpl_container[0]
-
-        #pager.tmpl_container.html Houce.render_blaze me.page_name
-        #console.log "full render result", r
-      else
-        error = "<strong>'#{me.page_name}' has not defined @html function and thus can't be rendered.</strong>"
-      # alway fire also params_changed event with open_page (assuming there are some params)
-      me.params_changed_event()
-    else
-      console.log "WARNING: #{me.page_name}.tmpl not found!" if Houce.log_events
-      error = "Template <strong>#{me.page_name}.tmpl</strong> not found!"
-
-    $(config.tmpl_container or 'body').html error if error?
-
-    me.after_open_page()
 
 
 # TODO: change params back to root level properties

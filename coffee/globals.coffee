@@ -3,6 +3,20 @@ if window?
   @global = window
 
 
+# NAMESPACINC
+# TODO: load namespace.coffee through packages.(js|json) once Meteor 0.9 is released
+# Namespace for houCe functions
+global.Houce  = Object.extended()
+# Namespace for models
+global.models = Object.extended()
+# Namespace for utility libraries
+global.utils  = Object.extended()
+# Namespace for configs
+global.config = Object.extended()
+# Namespace for templates
+global.template = template ? Object.extended()
+
+
 # DEFINE GLOBALS, later bind to actual global
 
 globals =
