@@ -95,6 +95,9 @@ if Object.defineProperty?
       for key,val of @
         @[key] = map_func val, key
       @
+    map2arr: (map_func)->
+      for key,val of @
+        map_func val, key
     own_properties: ->
       o = {}
       for name in Object.getOwnPropertyNames(@)
@@ -115,5 +118,26 @@ if Object.defineProperty?
   hash_proto = Object.extended().__proto__
   for func_name, func of hash_extensions
     Object.defineProperty hash_proto, func_name, (value: func)
+
+
+# create Deps implementation of localStorage
+if Meteor? and localStorage?
+  global.depStorage =
+    deps: {}
+    get: (name)->
+      try
+        @deps[name] ?= new Deps.Dependency
+        Deps.depend @deps[name]
+        localStorage.getItem name
+      catch err
+        debugger
+    set: (name,val)->
+      localStorage.setItem name,val
+      @deps[name]?.changed()
+    remove: (name)->
+      localStorage.removeItem name
+      @deps[name]?.changed()
+
+
 
 
