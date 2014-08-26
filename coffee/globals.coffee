@@ -225,8 +225,6 @@ Object.filter = (obj, test_func)->
 
 RegExp.quote = (str)-> (str+'').replace /([.?*+^$[\]\\(){}|-])/g, "\\$1"
 
-RegExp.quote = (str)-> (str+'').replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1")
-
 # if Object.getPrototypeOf?
 #   # Hmm, not so sure if this really works
 #   Object.setPrototypeOf = (obj, proto)-> # IE 9, chrome, moz
