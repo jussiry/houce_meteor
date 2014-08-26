@@ -225,6 +225,7 @@ Object.filter = (obj, test_func)->
     new_obj[key] = val if test_func key, val
   new_obj
 
+RegExp.quote = (str)-> (str+'').replace /([.?*+^$[\]\\(){}|-])/g, "\\$1"
 
 # if Object.getPrototypeOf?
 #   # Hmm, not so sure if this really works
