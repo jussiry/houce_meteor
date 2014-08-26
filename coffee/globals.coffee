@@ -114,9 +114,7 @@ globals =
 
   keys:   Object.keys
 
-  log: (args...) ->
-    throw 'plaa' if args[0] is 'daa'
-    console.log.apply console, args
+  log: (args...) -> console.log.apply console, args
 
   merge: Object.merge
 
@@ -226,6 +224,8 @@ Object.filter = (obj, test_func)->
   new_obj
 
 RegExp.quote = (str)-> (str+'').replace /([.?*+^$[\]\\(){}|-])/g, "\\$1"
+
+RegExp.quote = (str)-> (str+'').replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1")
 
 # if Object.getPrototypeOf?
 #   # Hmm, not so sure if this really works
