@@ -110,10 +110,12 @@ if Meteor.isClient
     #   classes = if classes.length then "class='#{classes.join ' '}'" else null
     #   "<#{sElement} #{ifs id,id} #{ifs classes,classes}>"
 
-  Houce.render_blaze = (tmpl_name)-> # , extra_data
+  Houce.render_blaze = (tmpl_name, parentDomEl)-> # , extra_data
     tmpl = Template[tmpl_name]
     throw "Template not found: #{tmpl_or_name}" unless tmpl?
-    UI.render tmpl
+    #res = Blaze.toHTML tmpl
+    #debugger
+    UI.render tmpl #, parentDomEl
 
   # JQuery shortcuts for Houce.render
   jQuery.fn.render = (args...)->

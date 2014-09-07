@@ -17,8 +17,6 @@ global.pager = do ->
   hashbang = '#/'
   bang     = '/'
 
-
-
   # The paradigm used in houCe for making singleton objects is to execute function (do ->)
   # with private variables defined above and public vars defined below by
   # returning a literal object.
@@ -174,7 +172,6 @@ global.pager = do ->
     else
       me.open_page path: (default_prev or me.main_page)
     return false
-
 
   # Gets executed evrytime window.locatio.hash changes.
   check_url_hash: ->
