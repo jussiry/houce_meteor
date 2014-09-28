@@ -143,6 +143,8 @@ globals =
           container  = global[container] if typeof container is 'string'
           obj_name   = args[1]
           properties = args[2]
+        else
+          throw "proto_obj: too many arguments"
       if args.length > 1
         container[obj_name] = obj =
           if   container[obj_name]? \

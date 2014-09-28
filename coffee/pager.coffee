@@ -51,7 +51,7 @@ global.pager = do ->
       for k,v of me.params.all
         return key if k.parsesToNumber() and v is key
       null
-    set: (key, new_val)->
+    set: (key, new_val, skip_history)->
       if new_val?
         me.params.all[key] = new_val #.toPrimitive()
       else
@@ -64,7 +64,7 @@ global.pager = do ->
             return if v is key
         # new param, set to next_ind
         me.params.all[cur_ind.toNumber()] = key
-      me.check_if_params_changed()
+      me.check_if_params_changed(skip_history)
       me.params.dependencies[key]?.changed()
     preset: (key, val)->
       me.params.set(key, val) unless me.params.all[key]?
@@ -123,9 +123,9 @@ global.pager = do ->
       [path_str, {}]
 
   # event
-  check_if_params_changed: ->
+  check_if_params_changed: (skip_history)->
     location.hash = hashbang + (path = me.path_from_page_and_params())
-    if path isnt me.path_history.last()
+    unless path is me.path_history.last() or skip_history
       if me.path_stack.last().split('/')[0] is path.split('/')[0]
         # page is same, only params changed
         me.path_stack.splice -1, 1, path
@@ -185,7 +185,7 @@ global.pager = do ->
     # Check if hash path has changed
     return if new_path_str is me.path_history.last()
 
-    [page, params] = me.page_and_params_from_path new_path_str
+    [page, new_params] = me.page_and_params_from_path new_path_str
 
     if me.back_path?
       # back_button pressed, open previous page:
@@ -193,14 +193,14 @@ global.pager = do ->
       me.back_path = null
     else if page isnt me.page_name.str
       # page changed, open new page
-      me.open_page page:page, params:params
-    else if not equal params, me.params.all
+      me.open_page page:page, params:new_params
+    else if not equal new_params, me.params.all
       # remove old changed/removed params
       for old_key,old_val of me.params.all
-        unless params[old_key] is old_val
+        unless new_params[old_key]? #and new_par isnt old_val and not
           me.remove old_key
       # set new params
-      for key,val of params
+      for key,val of new_params
         me.set key, val
 
   # open_page args:
