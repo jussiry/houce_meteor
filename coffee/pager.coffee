@@ -68,11 +68,11 @@ global.pager = do ->
       me.params.dependencies[key]?.changed()
     preset: (key, val)->
       me.params.set(key, val) unless me.params.all[key]?
-    remove: (key)->
+    remove: (key, skip_history)->
       delete me.params.all[key]
       for k,v of me.params.all
         delete me.params.all[k] if k.parsesToNumber() and v is key
-      me.check_if_params_changed()
+      me.check_if_params_changed(skip_history)
       me.params.dependencies[key]?.changed()
     toggle: (key, new_val)->
       if me.params.get key then me.params.remove key \
@@ -202,6 +202,9 @@ global.pager = do ->
       # set new params
       for key,val of new_params
         me.set key, val
+        # if key.parsesToNumber()
+        # then me.set val
+        # else me.set key, val
 
   # open_page args:
   #   path    # string of new_path, overwrites 'page' and 'params'
