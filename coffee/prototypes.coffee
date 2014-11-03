@@ -33,7 +33,7 @@ prototypes =
   String:
     is_in: (arr)-> arr.some @valueOf()
     parsesToNumber: ->
-      not Object.isNaN this - 0  #this.toNumber()
+      not Number.isNaN this - 0  #this.toNumber()
     toPrimitive: ->
       str = ''+@
       return throw "'#{str}'.toPrimitive() has illegal characters." if str.matches ['=', '(', '{']
