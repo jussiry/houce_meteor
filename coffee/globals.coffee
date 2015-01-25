@@ -120,7 +120,7 @@ globals =
 
   # Prototype way of creating new- or merging to existing object.
   # Merging only possible when two or three args
-  proto_obj: do ->
+  named_obj: do ->
     # Create named functions for name proto objects
     func_cache = {}
     get_func = (name)->
@@ -144,7 +144,7 @@ globals =
           obj_name   = args[1]
           properties = args[2]
         else
-          throw "proto_obj: too many arguments"
+          throw "named_obj: too many arguments"
       if args.length > 1
         container[obj_name] = obj =
           if   container[obj_name]? \
@@ -161,6 +161,7 @@ globals =
       obj.init?()
       # if obj.init?
       #   delete obj.init
+      #Object.freeze obj
       obj
 
   # JS shorhands

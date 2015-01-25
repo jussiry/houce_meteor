@@ -74,9 +74,9 @@ global.pager = do ->
         delete me.params.all[k] if k.parsesToNumber() and v is key
       me.check_if_params_changed(skip_history)
       me.params.dependencies[key]?.changed()
-    toggle: (key, new_val)->
-      if me.params.get key then me.params.remove key \
-                           else me.params.set key, new_val
+    toggle: (key, new_val, skip_history)->
+      if me.params.get key then me.params.remove key, skip_history \
+                           else me.params.set key, new_val, skip_history
 
   path: ->
     if is_blank(last = me.path_history.last()) then me.main_page else last
