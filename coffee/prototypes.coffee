@@ -27,11 +27,11 @@ prototypes =
     toDate: -> Date.create(@)
     getPrecision: ->
       (@+'').split(".")[1]?.length or 0
-    is_in: (arr)-> arr.some @valueOf()
+    isInside: (arr)-> arr.indexOf(@valueOf()) isnt -1
 
 
   String:
-    is_in: (arr)-> arr.some @valueOf()
+    isInside: (arr)-> arr.indexOf(@valueOf()) isnt -1
     parsesToNumber: ->
       not Number.isNaN this - 0  #this.toNumber()
     toPrimitive: ->
